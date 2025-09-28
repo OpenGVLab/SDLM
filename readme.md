@@ -1,9 +1,12 @@
-# Sequential Diffusion Language Model
+<div align="center">
+    
+# Sequential Diffusion Language Models
 
-[\[🔥 Report\]]()
-[\[🆕 Blog\]](https://InternVL.github.io/blog/2025-09-29-SDLM/)   [\[🤗 HF Model\]](https://huggingface.co/collections/OpenGVLab/sdlm-68ac82709d7c343ad36aa552) 
+[![Report](https://img.shields.io/badge/📜%20Report-arXiv-red.svg)](https://arxiv.org/abs/)
+[![Blog](https://img.shields.io/badge/🚀%20Blog-Page-blue)](https://internvl.github.io/blog/2025-09-29-SDLM/)
+[![deploy](https://img.shields.io/badge/🤗%20HuggingFace-SDLM-FFEB3B)](https://huggingface.co/collections/OpenGVLab/sdlm-68ac82709d7c343ad36aa552)
 
-
+</div>
 ## News
 
 * 🚀 **2025-09-29:** SDLM project and full code released.
