@@ -7,6 +7,7 @@
 [![deploy](https://img.shields.io/badge/🤗%20HuggingFace-SDLM-FFEB3B)](https://huggingface.co/collections/OpenGVLab/sdlm-68ac82709d7c343ad36aa552)
 
 </div>
+
 ## News
 
 * 🚀 **2025-09-29:** SDLM project and full code released.
