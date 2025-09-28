@@ -1,0 +1,10 @@
+{
+    "test_for_debug": {
+        "root": null,
+        "annotation":"shell/playground/data/plain_text/test_for_debug.jsonl",
+        "repeat_time": 1,
+        "length": 3,
+        "tag": "",
+        "data_augment": true
+    }
+}

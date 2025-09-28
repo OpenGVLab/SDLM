@@ -1,0 +1,373 @@
+self.block_size=4 self.causal_attn=False self.debug_print=False self.training=True self.text_mask_token_id=151665
+
+
+alg='prob_conf'
+with kv cache use_cache=True max_gen_len=128 total_generate_len=154 temperature=0 top_k=None top_p=None threshold=0.5 n_future_tokens=4 only_first_token_keep=False
+======
+
+
+iter_round=33, generated_token_num=103
+generate time, 9.764316082000732
+prefill time, 1.9185848236083984
+decode time, 7.845731258392334
+
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print(fibonacci(10)) # Output: 55
+=======histroy
+cur total token  1
+def
+--------
+cur total token  5
+def fibonacci(n):
+   
+--------
+cur total token  9
+def fibonacci(n):
+    if n <= 
+--------
+cur total token  13
+def fibonacci(n):
+    if n <= 0:
+        return
+--------
+cur total token  14
+def fibonacci(n):
+    if n <= 0:
+        return "
+--------
+cur total token  15
+def fibonacci(n):
+    if n <= 0:
+        return "Input
+--------
+cur total token  17
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be
+--------
+cur total token  18
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a
+--------
+cur total token  22
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+   
+--------
+cur total token  26
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 
+--------
+cur total token  30
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return
+--------
+cur total token  34
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+   
+--------
+cur total token  38
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 
+--------
+cur total token  42
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return
+--------
+cur total token  46
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+   
+--------
+cur total token  49
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+       
+--------
+cur total token  50
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a
+--------
+cur total token  54
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 
+--------
+cur total token  58
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+--------
+cur total token  62
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _
+--------
+cur total token  66
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2
+--------
+cur total token  70
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+           
+--------
+cur total token  74
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b =
+--------
+cur total token  78
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a +
+--------
+cur total token  82
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return
+--------
+cur total token  84
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+
+--------
+cur total token  85
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+#
+--------
+cur total token  86
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test
+--------
+cur total token  90
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print
+--------
+cur total token  94
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print(fibonacci(
+--------
+cur total token  98
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print(fibonacci(10)) #
+--------
+cur total token  102
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print(fibonacci(10)) # Output: 5
+--------
+cur total token  103
+def fibonacci(n):
+    if n <= 0:
+        return "Input should be a positive integer."
+    elif n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n):
+            a, b = b, a + b
+        return b
+
+# Test the function
+print(fibonacci(10)) # Output: 55
+--------

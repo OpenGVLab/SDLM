@@ -1,0 +1,3 @@
+{"conversations": [{"from": "human", "value": "1 + 1 = ?"}, {"from": "gpt", "value": "1 + 1 = 2."},{"from": "human", "value": "2 + 3 + 1 = ?"}, {"from": "gpt", "value": "2 + 3 + 1 = 6."}]}
+{"conversations": [{"from": "human", "value": "what is the value of 1 * 3 + 3 * 5?"}, {"from": "gpt", "value": "1 * 3 + 3 * 5 = 3 + 15 = 18."}]}
+{"conversations": [{"from": "human", "value": "百番狮象一溪泅，一顷银光万个头"}, {"from": "gpt", "value": "水石何缘能有此，星辰尽夜殒寒流"}]}

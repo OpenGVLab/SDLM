@@ -1,0 +1,60 @@
+{
+    "ScaleQuest-Math_train_1m": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/ScaleQuest_Math_train_1m.jsonl",
+        "repeat_time": 1,
+        "length": 1003467,
+        "tag": "sft_math",
+        "language": "en",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/dyyyyyyyy/ScaleQuest-Math"
+    },
+    "smoltalk_1100k": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/smoltalk_1100k.jsonl",
+        "repeat_time": 1,
+        "length": 1043917,
+        "tag": "sft_conv",
+        "language": "en",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/HuggingFaceTB/smoltalk"
+    },
+    "opc-sft-stage2-436k.jsonl": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/opc-sft-stage2-436k.jsonl",
+        "repeat_time": 1,
+        "length": 436347,
+        "tag": "sft_code",
+        "language": "en",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/OpenCoder-LLM/opc-sft-stage2"
+    },
+    "sciRIFF_4096_70k": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/sciRIFF_4096_70k.jsonl",
+        "repeat_time": 1,
+        "length": 70521,
+        "tag": "sft_conv",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/allenai/SciRIFF"
+    },
+    "Table-GPT_train_13k": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/Table-GPT_train_13k.jsonl",
+        "repeat_time": 1,
+        "length": 13222,
+        "tag": "sft_conv",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/LipengCS/Table-GPT"
+    },
+    "tulu-3-sft-mixture_train_939k": {
+        "root": null,
+        "annotation": "./shell/playground/data/hf_data/tulu-3-sft-mixture_train_939k.jsonl",
+        "repeat_time": 1,
+        "length": 939334,
+        "tag": "sft_conv",
+        "language": "en",
+        "data_augment": true,
+        "source": "https://huggingface.co/datasets/allenai/tulu-3-sft-mixture"
+    }
+}
