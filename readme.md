@@ -2,7 +2,7 @@
     
 # Sequential Diffusion Language Models
 
-[![Report](https://img.shields.io/badge/📜%20Report-arXiv-red.svg)](https://arxiv.org/abs/)
+[![Report](https://img.shields.io/badge/📜%20Report-arXiv-red.svg)](https://huggingface.co/papers/2509.24007)
 [![Blog](https://img.shields.io/badge/🚀%20Blog-Page-blue)](https://internvl.github.io/blog/2025-09-29-SDLM/)
 [![deploy](https://img.shields.io/badge/🤗%20HuggingFace-SDLM-FFEB3B)](https://huggingface.co/collections/OpenGVLab/sdlm-68ac82709d7c343ad36aa552)
 
@@ -10,8 +10,8 @@
 
 ## News
 
-* 🚀 **2025-09-29:** SDLM project and full code released.
-* ⏳ **Upcoming:** Release model checkpoints.
+* 🎉 **2025-09-30:** We release the [SDLM](https://huggingface.co/papers/2509.24007). Sequential Diffusion Language Model (SDLM) enhances pre-trained autoregressive language models by adaptively determining generation length and maintaining KV-cache compatibility, achieving high efficiency and throughput.
+* 🚀 **2025-09-29:** We provide the complete [training and inference code](https://github.com/OpenGVLab/SDLM) for SDLM, and provide the training [dataset](https://github.com/OpenGVLab/SDLM/blob/7aeff4bd98b563a6cc7eb028c0f06556af8d4edb/readme.md?plain=1#L173) and configuration.
 
 ## Contents
 
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     | <a href="https://huggingface.co/datasets/allenai/tulu-3-sft-mixture">Tulu-3-sft-mixture</a> |  939K     | General |
     | <a href="https://huggingface.co/datasets/allenai/SciRIFF">SciRIFF</a>                      |  79K       | Scienece|
     | <a href="https://huggingface.co/datasets/LipengCS/Table-GPT">Table-GPT</a>                 |  13K       | Table   |
-    | Total                                                                                      |  3,506K    |  --     |
+    | **Total**                                                                                      |  **3,506K**    |  --     |
 
 
 4. Start Training
@@ -245,6 +245,11 @@ We extend our gratitude to the open-source community for their foundational cont
 
 ## Citation
 
-```
-
+```bibtex
+@article{liu2025sdlm,
+  title={Sequential Diffusion Language Models},
+  author={Liu, Yangzhou and Cao, Yue and Li, Hao and Luo, Gen and Chen, Zhe and Wang, Weiyun and Liang, Xiaobo and Qi, Biqing and Wu, Lijun and Tian, Changyao and Zhang, Yanting and Li, Yuqiang and Lu, Tong and Qiao, Yu and Dai, Jifeng and Wang, Wenhai},
+  journal={arXiv preprint arXiv:2509.24007},
+  year={2025}
+}
 ```
