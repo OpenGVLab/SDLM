@@ -60,7 +60,7 @@ srun --gres=gpu:${GPUS_PER_NODE} \
   --grad_checkpoint True \
   --deepspeed "zero_stage1_config.json" \
   --report_to "tensorboard" \
-  --block_size 4 \
+  --block_size 8 \
   --causal_attn False \
    --attn_implementation sdpa \
   2>&1 | tee -a "${OUTPUT_DIR}/training_log.txt"

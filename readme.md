@@ -23,7 +23,7 @@
 
 ## Todo List
 
-- [ ] Model Zoo
+- [x] Model Zoo
 - [x] Inference
 - [x] Training
 - [x] Evaluation
