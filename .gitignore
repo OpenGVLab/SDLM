@@ -170,3 +170,7 @@ results/
 
 log_check/
 shell/playground/train_states/
+
+shell/playground/data/plain_text
+shell/playground/eval
+shell/playground/backup

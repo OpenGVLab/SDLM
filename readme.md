@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
 3. Prepare Training Data
 
-    The training dataset we used is specified in the meta file: [meta.json](shell/playground/data/meta/sft_opc436k_scale_math_1m_smoltalk_1m_tulu_1m.json) and is organized in the ShareGPT style, according to the [InternVL chat data format](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html).
+    The training dataset we used is specified in the meta file: [meta.json](shell/playground/data/meta/sft_opc436k_scale_math_1m_smoltalk_1m_tulu_1m.json) and is organized in the ShareGPT style, according to the [InternVL chat data format](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html). The script [preprocess_scalequestmath.py](utils/data_process/preprocess_scalequestmath.py) serves as a reference implementation.
     
     This dataset is composed of several open-source datasets, with the following structure:
     
