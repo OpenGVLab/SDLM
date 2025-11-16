@@ -30,7 +30,6 @@ def find_prefix_seq_length_by_pe(
     return seq_len
 
 
-
 def update_causal_mask_with_pad_non_visible_2d(
     input_ids: torch.Tensor,
     attn_mask_2d: torch.Tensor,
@@ -53,6 +52,7 @@ def update_causal_mask_with_pad_non_visible_2d(
     Returns:
         Modified attention mask with updated visibility patterns
     """
+        
     seq_len = input_ids.shape[0]
     device = input_ids.device
 
@@ -65,7 +65,6 @@ def update_causal_mask_with_pad_non_visible_2d(
 
     rows = torch.arange(seq_len, device=device)[:, None]  # (seq_len, 1)
     cols = torch.arange(seq_len, device=device)  # (seq_len,)
-
 
     indices = torch.arange(seq_len, device=device)
     prev_non_mask = (indices * non_mask).cummax(dim=0).values
@@ -92,6 +91,39 @@ def update_causal_mask_with_pad_non_visible_2d(
                 mask_cols[None, :]  
         )
         attn_mask_2d.masked_fill_(visible_mask, 0.0)
+
+    return attn_mask_2d
+
+
+def update_causal_mask_with_pad_non_visible_2d_for_ssd_cache(
+    input_ids: torch.Tensor,
+    attn_mask_2d: torch.Tensor,
+    block_size: int = 4,
+    use_cache: bool = True,
+    causal_attn: bool = False
+) -> torch.Tensor:
+    q_len, kv_len = attn_mask_2d.shape
+
+    if q_len == kv_len:
+        # prefill
+        return update_causal_mask_for_one_gen_window_2d(
+            input_ids = input_ids,
+            attn_mask_2d = attn_mask_2d,
+            block_size = block_size,
+            use_cache = use_cache,
+            causal_attn = causal_attn
+        )
+
+    start_ix = q_len - block_size
+    start_jx = kv_len - block_size
+    for ix in range(block_size-1, -1, -1):
+        attn_mask_2d[start_ix:start_ix+block_size, start_jx:start_jx+block_size] = 0.0
+        attn_mask_2d[start_ix+block_size:, start_jx-ix:start_jx+block_size] = -float('inf')
+        
+        start_ix = start_ix - ix - block_size
+        start_jx = start_jx - ix - block_size 
+
+    attn_mask_2d[start_ix+block_size:, start_jx+block_size-1] = -float('inf')
 
     return attn_mask_2d
 

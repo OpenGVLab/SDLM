@@ -9,7 +9,7 @@
 </div>
 
 ## News
-
+* **2025-11-16**: Update: Nearly 5× Faster Decoding with KV-Cache–Enabled Self-Speculative Decoding.
 * 🎉 **2025-09-30:** We release the [SDLM](https://huggingface.co/papers/2509.24007). Sequential Diffusion Language Model (SDLM) enhances pre-trained autoregressive language models by adaptively determining generation length and maintaining KV-cache compatibility, achieving high efficiency and throughput.
 * 🚀 **2025-09-29:** We provide the complete [training and inference code](https://github.com/OpenGVLab/SDLM) for SDLM, and provide the training [dataset](https://github.com/OpenGVLab/SDLM/blob/7aeff4bd98b563a6cc7eb028c0f06556af8d4edb/readme.md?plain=1#L173) and configuration.
 
@@ -148,6 +148,10 @@ if __name__ == "__main__":
 ```
 
 </details>
+
+### Inference with Self-Speculative Decoding
+
+
 
 ## Train
 

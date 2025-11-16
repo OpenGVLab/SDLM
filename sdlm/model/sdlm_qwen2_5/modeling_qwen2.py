@@ -82,7 +82,8 @@ from .attn_mask_utils import (
     update_causal_mask_for_one_gen_window_2d,
     create_block_diff_mask_by_pe_1d,
     create_block_diff_mask_by_pe_4d,
-    find_pred_pos_from_input_ids
+    find_pred_pos_from_input_ids,
+    update_causal_mask_with_pad_non_visible_2d_for_ssd_cache
 )
 
 # Copied from transformers.models.llama.modeling_llama._get_unpad_data
@@ -1227,86 +1228,104 @@ class Qwen2Model(Qwen2PreTrainedModel):
         device = input_ids.device if input_ids is not None else inputs_embeds.device
         x0_len = find_prefix_seq_length_by_pe(position_ids).to(device=device)
 
-        if self._attn_implementation == "sdpa" and not output_attentions:
-            # output_attentions=True can not be supported when using SDPA, and we fall back on
-            # the manual implementation that requires a 4D causal mask in all cases.
-            # attention_mask = _prepare_4d_causal_attention_mask_for_sdpa(
-            #     attention_mask,
-            #     (batch_size, seq_length),
-            #     inputs_embeds,
-            #     past_key_values_length,
-            # )
+        if self.training:
+            if (self._attn_implementation == "sdpa" and not output_attentions) or self._attn_implementation == "eager":
+                # output_attentions=True can not be supported when using SDPA, and we fall back on
+                # the manual implementation that requires a 4D causal mask in all cases.
+                # attention_mask = _prepare_4d_causal_attention_mask_for_sdpa(
+                #     attention_mask,
+                #     (batch_size, seq_length),
+                #     inputs_embeds,
+                #     past_key_values_length,
+                # )
 
-            attention_mask, _ = create_block_diff_mask_by_pe_4d(
-                block_size=self.block_size, 
-                x0_len_list=x0_len, 
-                position_ids=position_ids, 
-                causal_attn=self.causal_attn
-            )
-
-        elif self._attn_implementation == "flash_attention_2":
-            # # 2d mask is passed through the layers
-            # attention_mask = attention_mask if (attention_mask is not None and 0 in attention_mask) else None
-
-            # TODO Update to Flex Attention.
-            block_diff_mask_func = partial(
-                create_block_diff_mask_by_pe_1d, 
-                block_size=self.block_size, 
-                x0_len_list=x0_len, 
-                position_ids_list=position_ids, 
-                causal_attn=self.causal_attn
-            )
-            
-            attention_mask = create_block_mask(
-                block_diff_mask_func,
-                B=None, H=None, Q_LEN=seq_length, KV_LEN=seq_length, device=device
-            )
-
-        else:
-            if not self.training:
-                # for sampling, set attn = eager
-                attention_mask = _prepare_4d_causal_attention_mask(
-                    attention_mask,
-                    (batch_size, seq_length),
-                    inputs_embeds,
-                    past_key_values_length,
-                    sliding_window=self.config.sliding_window,
-                )
-
-                if use_cache:
-                    update_mask_func = partial(
-                        update_causal_mask_for_one_gen_window_2d,
-                        block_size=self.block_size,
-                        use_cache=use_cache,
-                        causal_attn=self.causal_attn
-                    ) 
-                else:
-                    update_mask_func = partial(
-                        update_causal_mask_with_pad_non_visible_2d,
-                        block_size=self.block_size,
-                        text_mask_token_id=self.text_mask_token_id,
-                        causal_attn=self.causal_attn
-                    ) 
-
-                if attention_mask is not None and len(attention_mask.shape) == 4: 
-                    new_attention_mask = []
-                    for b in range(attention_mask.shape[0]):
-                        new_attention_mask.append(
-                            update_mask_func(
-                                input_ids[b],
-                                attention_mask[b][0]
-                            ).unsqueeze(0)
-                        )
-                    attention_mask = torch.stack(new_attention_mask, dim=0)
-            
-            else:
-                # for training
                 attention_mask, _ = create_block_diff_mask_by_pe_4d(
                     block_size=self.block_size, 
                     x0_len_list=x0_len, 
                     position_ids=position_ids, 
                     causal_attn=self.causal_attn
                 )
+
+            elif self._attn_implementation == "flash_attention_2":
+                # # 2d mask is passed through the layers
+                # attention_mask = attention_mask if (attention_mask is not None and 0 in attention_mask) else None
+
+                # TODO Update to Flex Attention.
+                block_diff_mask_func = partial(
+                    create_block_diff_mask_by_pe_1d, 
+                    block_size=self.block_size, 
+                    x0_len_list=x0_len, 
+                    position_ids_list=position_ids, 
+                    causal_attn=self.causal_attn
+                )
+                
+                attention_mask = create_block_mask(
+                    block_diff_mask_func,
+                    B=None, H=None, Q_LEN=seq_length, KV_LEN=seq_length, device=device
+                )
+
+            else:
+                raise NotImplementedError
+        else:
+            assert self._attn_implementation in ['sdpa', 'eager']
+            # for sampling, set attn = eager
+            attention_mask = _prepare_4d_causal_attention_mask(
+                attention_mask,
+                (batch_size, seq_length),
+                inputs_embeds,
+                past_key_values_length,
+                sliding_window=self.config.sliding_window,
+            )
+
+            # print('attn mask by _prepare_4d_causal_attention_mask\n\n', attention_mask)
+
+            if use_cache and self.decoding_with_ssd_cache:
+                update_mask_func = partial(
+                    update_causal_mask_with_pad_non_visible_2d_for_ssd_cache,
+                    block_size=self.block_size,
+                    use_cache=use_cache,
+                    causal_attn=self.causal_attn
+                )
+            elif use_cache:
+                update_mask_func = partial(
+                    update_causal_mask_for_one_gen_window_2d,
+                    block_size=self.block_size,
+                    use_cache=use_cache,
+                    causal_attn=self.causal_attn
+                )
+            else:
+                update_mask_func = partial(
+                    update_causal_mask_with_pad_non_visible_2d,
+                    block_size=self.block_size,
+                    text_mask_token_id=self.text_mask_token_id,
+                    causal_attn=self.causal_attn
+                )
+
+            if attention_mask is not None and len(attention_mask.shape) == 4: 
+                new_attention_mask = []
+                for b in range(attention_mask.shape[0]):
+                    new_attention_mask.append(
+                        update_mask_func(
+                            input_ids[b],
+                            attention_mask[b][0]
+                        ).unsqueeze(0)
+                    )
+                attention_mask = torch.stack(new_attention_mask, dim=0)
+
+            # if True:
+            #     print(f'inference attention {self._attn_implementation} {self.training=} {use_cache=}')
+            #     print(f'{attention_mask.shape=}')
+            #     import numpy as np
+            
+            #     for b in range(batch_size):
+            #         causal_mask_2d = attention_mask[b][0].tolist()
+            #         binary_mask = np.where(np.array(causal_mask_2d)==0.0, 0, 1)
+            #         print(f'{b=}, mask is\n')
+                    
+            #         for ix in range(binary_mask.shape[0]):
+            #             print(' '.join(str(_) for _ in binary_mask[ix]))
+            #         print('\n\n')
+
 
         hidden_states = inputs_embeds
 
