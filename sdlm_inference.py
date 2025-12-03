@@ -432,9 +432,11 @@ class FlashAttention:
 
     model = AutoModelForCausalLM.from_pretrained(
         ckpt_hf, 
-        attn_implementation="eager",
-        trust_remote_code=True
-    ).to(dtype=torch.float16)
+        attn_implementation="sdpa",
+        trust_remote_code=True,
+        device_map='auto',
+        torch_dtype = torch.float16
+    )
     tokenizer = AutoTokenizer.from_pretrained(ckpt_hf)
 
     n_feature_tokens = model.config.block_size

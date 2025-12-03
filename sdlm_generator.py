@@ -609,11 +609,13 @@ class FlashAttention:
     model = AutoModelForCausalLM.from_pretrained(
         ckpt_hf, 
         attn_implementation="sdpa",
-        trust_remote_code=True
-    ).to(dtype=torch.float16)
+        trust_remote_code=True,
+        device_map='auto',
+        torch_dtype = torch.float16
+    )
     tokenizer = AutoTokenizer.from_pretrained(ckpt_hf)
 
-    n_future_tokens = model.config.block_size
+    n_future_tokens = model.config.block_size # or setting to a larger D, recommand 8 for SDLM-3B-D4 and 16 for SDLM-3B-D8
 
     sampling_args = {
         'temperature': 0,
