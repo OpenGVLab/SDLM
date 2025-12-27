@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     model = Qwen2ForCausalLM.from_pretrained(
         ckpt_name,
-        attn_implementation="eager"
+        attn_implementation="sdpa"
     ).to(
         # device='cuda', 
         dtype=torch.float16
@@ -26,7 +26,6 @@ if __name__ == "__main__":
 
     # prompt = '9 * 3 + 5 = ?'
     # prompt = 'introduce large language model.'
-    # prompt = 'Who are you.'
     prompt = 'Write a Fibonacci function in Python.'
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},

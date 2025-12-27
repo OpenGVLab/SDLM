@@ -5,7 +5,7 @@ from transformers import PreTrainedModel, PreTrainedTokenizer
 from functools import partial
 
 EOS_TOKEN_IDS = [151645, 151643] # im_end, end_of_text
-DEFAULT_MASK_TOKEN_ID = 151665 # <text_mask>
+DEFAULT_MASK_TOKEN_ID = 151665 # <mask>
 PAD_TOKEN_ID = 151643 
 
 
@@ -306,7 +306,7 @@ class SDLMGenerator:
                 cur_ix += ix + self.n_future_tokens
 
             return pad_y
-
+        
         def prepare_verify_pe(start_pe):
             pe = torch.full((batch_size, pad_len), start_pe, dtype=torch.long, device=generated.device)
             cur_ix = 0
@@ -444,7 +444,6 @@ class SDLMGenerator:
         generated = model_inputs.input_ids.clone()
 
         self.model.use_cache = False
-        self.model.model.decoding_with_ssd_cache = False
 
         history_record = []
         forward_step = 0
@@ -609,17 +608,17 @@ class FlashAttention:
 
     model = AutoModelForCausalLM.from_pretrained(
         ckpt_hf, 
-        attn_implementation="sdpa",
-        trust_remote_code=True,
-        device_map='auto',
-        torch_dtype = torch.float16
-    )
+        attn_implementation="eager",
+        trust_remote_code=True
+    ).to(dtype=torch.float16)
     tokenizer = AutoTokenizer.from_pretrained(ckpt_hf)
 
-    n_future_tokens = model.config.block_size # or setting to a larger D, recommand 8 for SDLM-3B-D4 and 16 for SDLM-3B-D8
+    n_future_tokens = model.config.block_size
+    n_future_tokens = 16
+
 
     sampling_args = {
-        'temperature': 0,
+        'temperature': 1,
         'top_p': None,
         'top_k': None,
         'entropy_conf': False

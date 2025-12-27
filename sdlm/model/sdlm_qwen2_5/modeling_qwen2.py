@@ -1149,6 +1149,8 @@ class Qwen2Model(Qwen2PreTrainedModel):
         self.causal_attn = getattr(config, 'causal_attn', False)
         self.text_mask_token_id = getattr(config, 'text_mask_token_id', 151666)
 
+        self.decoding_with_ssd_cache = False
+
         # print(f'{self.block_size=} {self.causal_attn=} {self.training=} {self.text_mask_token_id=}\n')
 
 
@@ -1268,7 +1270,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
                 raise NotImplementedError
         else:
             assert self._attn_implementation in ['sdpa', 'eager']
-            # for sampling, set attn = eager
+            # for sampling, set attn = 'eager' or 'sdpa'
             attention_mask = _prepare_4d_causal_attention_mask(
                 attention_mask,
                 (batch_size, seq_length),
@@ -1277,9 +1279,8 @@ class Qwen2Model(Qwen2PreTrainedModel):
                 sliding_window=self.config.sliding_window,
             )
 
-            # print('attn mask by _prepare_4d_causal_attention_mask\n\n', attention_mask)
-
             if use_cache and self.decoding_with_ssd_cache:
+                # # Sampling with Self-Speculative Decoding
                 update_mask_func = partial(
                     update_causal_mask_with_pad_non_visible_2d_for_ssd_cache,
                     block_size=self.block_size,
@@ -1287,6 +1288,9 @@ class Qwen2Model(Qwen2PreTrainedModel):
                     causal_attn=self.causal_attn
                 )
             elif use_cache:
+                # Sampling with Confidence Decoding, 
+                # Only the generation window setting to full attention.
+                # The last token of the previous window serves two roles, and is therefore duplicated, (1) causal attention for KV recomputation, during which it is masked from the subsequent decoding window; (2) and it also acts as the first token of the next decoding window
                 update_mask_func = partial(
                     update_causal_mask_for_one_gen_window_2d,
                     block_size=self.block_size,
@@ -1484,6 +1488,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel):
         logits = logits.float()
 
         loss = None
+        pos_loss_list = None
         if labels is not None:
 
             # Shift so that tokens < n predict n
@@ -1525,7 +1530,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel):
             output = (logits,) + outputs[1:]
             return (loss,) + output if loss is not None else output
         
-        if self.training:
+        if self.training and pos_loss_list is not None:
             return CausalLMOutputWithPast(
                 loss=loss,
                 logits=logits,

@@ -11,11 +11,37 @@ from opencompass.registry import MODELS
 from opencompass.utils.logging import get_logger
 from opencompass.utils.prompt import PromptList
 
-from opencompass.models.sdlm_qwen2_5.modeling_qwen2 import Qwen2ForCausalLM
-from opencompass.models.sdlm_qwen2_5.generate_utils import SDLM_generate
+from opencompass.models.sdlm.sdlm_generate import SDLMGenerator
 
 PromptType = Union[PromptList, str]
 
+
+try:
+    import flash_attn
+except Exception:
+    import sys
+    from pathlib import Path
+
+    print('Error, flash_attn is not installed.')
+    flash_attn_path = Path("/tmp/flash_attn")
+    flash_attn_path.mkdir(exist_ok=True)
+
+
+    init_file = flash_attn_path / "__init__.py"
+    init_file.write_text("""
+def flash_attn_func(*args, **kwargs):
+    raise ImportError("flash_attn is disabled")
+        
+def flash_attn_varlen_func(*args, **kwargs):
+    raise ImportError("flash_attn is disabled")
+
+class FlashAttention:
+    def __init__(self, *args, **kwargs):
+        raise ImportError("flash_attn is disabled")
+""")
+        
+    sys.path.insert(0, str(flash_attn_path.parent))
+ 
 
 def _get_stopping_criteria(stop_words, tokenizer, batch_size):
 	from transformers import StoppingCriteria, StoppingCriteriaList
@@ -190,7 +216,23 @@ class SDLM_Qwen2_5(BaseModel):
 		for k, v in other_kwargs.items():
 			if v is not None:
 				self.logger.warning(f'Unused argument {k}={v}')
-	
+
+		sampling_args = {
+			'temperature': 0,
+			'top_p': None,
+			'top_k': None,
+			'entropy_conf': False
+		}
+
+		self.n_future_tokens = 12 # FIXME
+		self.model_generator = SDLMGenerator(
+			self.model,
+			self.tokenizer,
+			sampling_args,
+			self.n_future_tokens if self.n_future_tokens else 4
+		)
+
+
 	def _load_tokenizer(self, path: Optional[str], kwargs: dict, pad_token_id: Optional[int] = None):
 		from transformers import AutoTokenizer, GenerationConfig
 		
@@ -231,18 +273,15 @@ class SDLM_Qwen2_5(BaseModel):
 		model_kwargs = DEFAULT_MODEL_KWARGS
 		model_kwargs.update(kwargs)
 		model_kwargs = _set_model_kwargs_torch_dtype(model_kwargs)
-		model_kwargs['attn_implementation'] = 'eager'  # TODO new add
+		model_kwargs['attn_implementation'] = 'sdpa'  # TODO eager or sdpa
 		self.logger.debug(f'using model_kwargs: {model_kwargs}')
 		if is_npu_available():
 			model_kwargs['device_map'] = 'npu'
 		
 		print('model_kwargs', model_kwargs)
 		try:
-			self.model = Qwen2ForCausalLM.from_pretrained(path, **model_kwargs)
-			# self.model = Qwen2ForCausalLM.from_pretrained(
-			#     path,
-			#     attn_implementation="eager"
-			# )
+			self.model = AutoModelForCausalLM.from_pretrained(path, **model_kwargs)
+			self.n_future_tokens = self.model.config.block_size # TODO
 			print(f'{self.model.config=}')
 		except ValueError:
 			raise NotImplementedError
@@ -254,6 +293,8 @@ class SDLM_Qwen2_5(BaseModel):
 		
 		self.model.eval()
 		self.model.generation_config.do_sample = False
+
+		print(self.model)
 	
 	def get_ppl_tokenwise(self, inputs: List[str], label: List[List[int]], mask_length: Optional[List[int]] = None) -> \
 	List[float]:
@@ -430,22 +471,6 @@ class SDLM_Qwen2_5(BaseModel):
 		potential_stop_words = [s for s in potential_stop_words if s]
 		return potential_stop_words
 	
-	def get_decoder_param(
-			self,
-			strategy='SDLM_gen', 
-	):
-		setting = {
-			'SDLM_gen': {
-				'temperature': 0,
-				'top_k': None,
-				'top_p': None,
-				'threshold': .82,
-				'n_future_tokens': 4,
-				'only_first_token_keep': False,
-				'alg': 'prob_conf' #  prob_conf | entropy_conf | self_speculative
-			}
-		}
-		return setting[strategy]
 	
 	def generate_with_sdlm(
 			self,
@@ -475,26 +500,19 @@ class SDLM_Qwen2_5(BaseModel):
 			return_tensors="pt"
 		).to(device)
 		
-		strategy = 'SDLM_gen'
-		decoder_setting = self.get_decoder_param(strategy=strategy)
-		
-		resp = SDLM_generate(
-			self.model,
-			self.tokenizer,
-			model_inputs,
-			max_length,
-			temperature=decoder_setting.get('temperature', 0),
-			top_k=decoder_setting.get('top_k', None),
-			top_p=decoder_setting.get('top_p', None),
-			threshold=decoder_setting.get('threshold', 0.98),
-			n_future_tokens=decoder_setting.get('n_future_tokens', 4),
-			only_first_token_keep=decoder_setting.get('only_first_token_keep', False),
-			use_cache=True, # default to use cache
-			alg=decoder_setting.get('alg', 'prob_conf')
-		)
-		
-		print(resp[0])
-		return resp
+		response, history = self.model_generator.generate(
+            model_inputs,
+            max_gen_len = 2048,
+            use_cache=True,
+            alg = 'self_speculative', #  prob_conf | entropy_conf | self_speculative
+            threshold = 0.4,
+            save_history = False,
+            only_first_token_keep = False,
+            n_future_tokens=self.n_future_tokens
+        )
+		print(response[0])
+
+		return response
 	
 	def generate(self,
 	             inputs: List[str],
@@ -505,6 +523,7 @@ class SDLM_Qwen2_5(BaseModel):
 		
 		return self.generate_with_sdlm(inputs, max_out_len)
 		
+
 		messages = _convert_chat_messages(inputs)
 		batch_size = len(messages)
 		
@@ -586,4 +605,3 @@ def _convert_base_messages(inputs):
 				messages.append(item['prompt'])
 			outputs.append(''.join(messages))
 	return outputs
-

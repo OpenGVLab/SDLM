@@ -102,10 +102,27 @@ def update_causal_mask_with_pad_non_visible_2d_for_ssd_cache(
     use_cache: bool = True,
     causal_attn: bool = False
 ) -> torch.Tensor:
+    """
+    Updates a 2D attention mask for Self-Speculative Decoding generate
+
+    Details is avaliabe in Appendix B Figure 5. 
+
+    Args:
+        input_ids: Input token IDs (unused in current implementation)
+        attn_mask_2d: 2D attention mask matrix of shape [seq_len, seq_len] where:
+            - 0.0 indicates allowed attention
+            - -inf indicates masked attention
+        block_size: Size of the diffusion window
+        use_cache: Whether key-value cache is being used
+        causal_attn: If True, maintains strict causal masking throughout
+    
+    Returns:
+        Modified attention mask with updated visibility patterns
+    """
     q_len, kv_len = attn_mask_2d.shape
 
     if q_len == kv_len:
-        # prefill
+        # prefill stage
         return update_causal_mask_for_one_gen_window_2d(
             input_ids = input_ids,
             attn_mask_2d = attn_mask_2d,
@@ -114,6 +131,7 @@ def update_causal_mask_with_pad_non_visible_2d_for_ssd_cache(
             causal_attn = causal_attn
         )
 
+    # decoding, as shown in Appendix B
     start_ix = q_len - block_size
     start_jx = kv_len - block_size
     for ix in range(block_size-1, -1, -1):

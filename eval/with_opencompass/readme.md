@@ -2,6 +2,17 @@
 
 We use OpenCompass for model evaluation. Currently, evaluation parameters need to be manually configured in `eval/with_opencompass/oc_sdlm.py`.
 
+## SetUp
+
+1. putting generator `eval/with_opencompass/sdlm` and ``eval/with_opencompass/oc_sdlm.py` to `opencompass/models`
+
+|-- sdlm
+|   |-- __init__.py
+|   `-- sdlm_generate.py
+|-- oc_sdlm.py
+
+2. for model card, refer to `eval/with_opencompass/SDLM_3B_D4.py`
+
 ## Configuration Settings
 
 - max_seq_length: 2048
